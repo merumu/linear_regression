@@ -1,6 +1,7 @@
 import csv
 import collections
-from estimatePrice import getTheta, setTheta, estimatePrice, checkInt
+import matplotlib.pyplot as plt
+from estimatePrice import *
 
 def readData():
     line = -1
@@ -10,11 +11,11 @@ def readData():
             data = collections.OrderedDict()
             for row in csv_reader:
                 if line == -1:
-                    print(f'Column names are {", ".join(row)}')
+                    print(f'Column mileage are {", ".join(row)}')
                     line += 1
                 else:
                     if len(row) == 2 and checkInt(row[0]) and checkInt(row[1]):
-                        data[row[0]] = row[1]
+                        data[int(row[0])] = int(row[1])
                         line += 1
             print(f'Processed {line} lines')
             csv_file.close()
@@ -26,12 +27,12 @@ def readData():
 
 def linearRegression(data):
     m = 0
-    learningRate = 0.5
+    learningRate = 0.05
     tmpT0 = 0
     tmpT1 = 0
     for km, price in data.items():
-        tmpT0 += estimatePrice(int(km)) - int(price)
-        tmpT1 += (estimatePrice(int(km)) - int(price)) * int(km)
+        tmpT0 += estimatePrice(km) - price
+        tmpT1 += (estimatePrice(km) - price) * km
         m += 1
     tmpT0 = tmpT0 * learningRate * (1/m)
     tmpT1 = tmpT1 * learningRate * (1/m)
@@ -45,3 +46,8 @@ if __name__ == "__main__":
     data = readData()
     if data:
         linearRegression(data)
+    mileage = list(data.keys())
+    price = list(data.values())
+    plt.scatter(mileage, price)
+    plt.plot([0,max(mileage)], [9000, 9000 + -0.025* max(mileage)], color='red', linewidth=3)
+    plt.show()
