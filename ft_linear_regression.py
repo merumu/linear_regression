@@ -10,7 +10,7 @@ def readData():
             data = {}
             for row in csv_reader:
                 if line == -1:
-                    print(f'Column mileage are {", ".join(row)}')
+                    print(f'Column are {", ".join(row)}')
                     line += 1
                 else:
                     if len(row) == 2 and checkInt(row[0]) and checkInt(row[1]):
@@ -26,22 +26,26 @@ def readData():
 
 def linearRegression(data):
     m = 0
-    learningRate = 0.1
+    learningRate = 0.05
     tmpT0 = 0
     tmpT1 = 0
     theta0, theta1 = getTheta()
     maxKm = max(data)
     minKm = min(data)
+    cost = 0
     for km, price in data.items():
-        km = (km - minKm) / (maxKm - minKm)
+        km = km / (maxKm - minKm)
         tmpT0 += estimatePrice(km) - price
         tmpT1 += (estimatePrice(km) - price) * km
+        cost += (estimatePrice(km**2) - price**2)**2
         m += 1
+    cost = cost / (2*m)
     tmpT0 = theta0 - tmpT0 * learningRate / m
     tmpT1 = theta1 - tmpT1 * learningRate / m
     tmpT1 = tmpT1 / (maxKm - minKm)
-    print("new theta :", tmpT0, tmpT1, sep="\t")
+    print("new theta :", tmpT0, tmpT1, cost, sep="\t|\t")
     setTheta(tmpT0, tmpT1)
+    return cost
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()
@@ -49,11 +53,17 @@ if __name__ == "__main__":
         setTheta(theta0, theta1)
     data = readData()
     if data:
-        for i in range(0,80):
-            linearRegression(data)
-    mileage = list(data.keys())
-    price = list(data.values())
-    plt.scatter(mileage, price)
-    theta0, theta1 = getTheta()
-    plt.plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
-    plt.show()
+        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        axs[0].set_title('Linear Regression')
+        axs[1].set_title('Cost function')
+        n = 1
+        for i in range(0, 1000):
+            cost = linearRegression(data)
+            axs[1].scatter(n, cost/1000000)
+            n += 1
+        mileage = list(data.keys())
+        price = list(data.values())
+        axs[0].scatter(mileage, price)
+        theta0, theta1 = getTheta()
+        axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
+        plt.show()
