@@ -1,5 +1,5 @@
-import sys
 import pickle
+import click
 
 def checkInt(i):
     try:
@@ -35,7 +35,5 @@ if __name__ == "__main__":
     theta0, theta1 = getTheta()
     if theta0 == 0 and theta1 == 0:
         setTheta(theta0, theta1)
-    if len(sys.argv) == 2 and checkInt(sys.argv[1]):
-        print(estimatePrice(int(sys.argv[1])))
-    else:
-        print("usage :\testimatePrice.py \"mileage\"\n\t- mileage must be an Int value")
+    mileage = click.prompt("Please type Mileage value (int)", type=int)
+    print("The estimate price is : " + str(estimatePrice(mileage)))

@@ -1,5 +1,4 @@
 import csv
-import collections
 import matplotlib.pyplot as plt
 from estimatePrice import *
 
@@ -8,7 +7,7 @@ def readData():
     try:
         with open('data.csv') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            data = collections.OrderedDict()
+            data = {}
             for row in csv_reader:
                 if line == -1:
                     print(f'Column mileage are {", ".join(row)}')
@@ -27,16 +26,21 @@ def readData():
 
 def linearRegression(data):
     m = 0
-    learningRate = 0.05
+    learningRate = 0.1
     tmpT0 = 0
     tmpT1 = 0
+    theta0, theta1 = getTheta()
+    maxKm = max(data)
+    minKm = min(data)
     for km, price in data.items():
+        km = (km - minKm) / (maxKm - minKm)
         tmpT0 += estimatePrice(km) - price
         tmpT1 += (estimatePrice(km) - price) * km
         m += 1
-    tmpT0 = tmpT0 * learningRate * (1/m)
-    tmpT1 = tmpT1 * learningRate * (1/m)
-    print("new theta :", tmpT0, tmpT1, sep="  ")
+    tmpT0 = theta0 - tmpT0 * learningRate / m
+    tmpT1 = theta1 - tmpT1 * learningRate / m
+    tmpT1 = tmpT1 / (maxKm - minKm)
+    print("new theta :", tmpT0, tmpT1, sep="\t")
     setTheta(tmpT0, tmpT1)
 
 if __name__ == "__main__":
@@ -45,9 +49,11 @@ if __name__ == "__main__":
         setTheta(theta0, theta1)
     data = readData()
     if data:
-        linearRegression(data)
+        for i in range(0,80):
+            linearRegression(data)
     mileage = list(data.keys())
     price = list(data.values())
     plt.scatter(mileage, price)
-    plt.plot([0,max(mileage)], [9000, 9000 + -0.025* max(mileage)], color='red', linewidth=3)
+    theta0, theta1 = getTheta()
+    plt.plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
     plt.show()
