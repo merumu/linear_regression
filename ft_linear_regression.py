@@ -32,20 +32,41 @@ def linearRegression(data):
     theta0, theta1 = getTheta()
     maxKm = max(data)
     minKm = min(data)
+    maxPrice = max(data.values())
+    minPrice = min(data.values())
     cost = 0
     for km, price in data.items():
-        km = km / (maxKm - minKm)
-        tmpT0 += estimatePrice(km) - price
+        km = (km - minKm) / (maxKm - minKm)
+        #price = (price - minPrice) / (maxPrice - minPrice)
+        tmpT0 += (estimatePrice(km) - price)
         tmpT1 += (estimatePrice(km) - price) * km
         cost += (estimatePrice(km**2) - price**2)**2
         m += 1
     cost = cost / (2*m)
-    tmpT0 = theta0 - tmpT0 * learningRate / m
-    tmpT1 = theta1 - tmpT1 * learningRate / m
-    tmpT1 = tmpT1 / (maxKm - minKm)
-    print("new theta :", tmpT0, tmpT1, cost, sep="\t|\t")
-    setTheta(tmpT0, tmpT1)
+    theta0 = theta0 - tmpT0 * learningRate / m
+    theta1 = theta1 - tmpT1 * learningRate / m
+    #theta0 = theta0 * (maxPrice - minPrice) - minPrice
+    theta1 = theta1 / (maxKm - minKm)
+    setTheta(theta0, theta1)
+    print("theta0 : ", theta0, "\ttheta1 : ", theta1, "\tcost : ", cost, sep=" ")
     return cost
+
+def printRegression(data):
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+    axs[0].set_title('Linear Regression')
+    axs[1].set_title('Cost function')
+    n = 1
+    for i in range(0, 500):
+        cost = linearRegression(data)
+        axs[1].scatter(n, cost)
+        n += 1
+    mileage = list(data.keys())
+    price = list(data.values())
+    axs[0].scatter(mileage, price)
+    theta0, theta1 = getTheta()
+    axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
+    plt.show()
+
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()
@@ -53,17 +74,6 @@ if __name__ == "__main__":
         setTheta(theta0, theta1)
     data = readData()
     if data:
-        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-        axs[0].set_title('Linear Regression')
-        axs[1].set_title('Cost function')
-        n = 1
-        for i in range(0, 1000):
-            cost = linearRegression(data)
-            axs[1].scatter(n, cost/1000000)
-            n += 1
-        mileage = list(data.keys())
-        price = list(data.values())
-        axs[0].scatter(mileage, price)
-        theta0, theta1 = getTheta()
-        axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
-        plt.show()
+        printRegression(data)
+    else:
+        print("no data found")
