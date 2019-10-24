@@ -26,7 +26,7 @@ def readData():
 
 def linearRegression(data):
     m = 0
-    learningRate = 0.05
+    learningRate = 0.005
     tmpT0 = 0
     tmpT1 = 0
     theta0, theta1 = getTheta()
@@ -36,17 +36,17 @@ def linearRegression(data):
     minPrice = min(data.values())
     cost = 0
     for km, price in data.items():
-        km = (km - minKm) / (maxKm - minKm)
+        km = (km - minKm) * (maxPrice) / (maxKm - minKm)
         #price = (price - minPrice) / (maxPrice - minPrice)
         tmpT0 += (estimatePrice(km) - price)
         tmpT1 += (estimatePrice(km) - price) * km
-        cost += (estimatePrice(km**2) - price**2)**2
+        cost += (estimatePrice(km) - price)**2
         m += 1
     cost = cost / (2*m)
     theta0 = theta0 - tmpT0 * learningRate / m
     theta1 = theta1 - tmpT1 * learningRate / m
-    #theta0 = theta0 * (maxPrice - minPrice) - minPrice
-    theta1 = theta1 / (maxKm - minKm)
+    #theta0 = theta0 * (maxPrice - minPrice) + minPrice
+    theta1 = (theta1) / (maxKm - minKm)
     setTheta(theta0, theta1)
     print("theta0 : ", theta0, "\ttheta1 : ", theta1, "\tcost : ", cost, sep=" ")
     return cost
@@ -56,7 +56,10 @@ def printRegression(data):
     axs[0].set_title('Linear Regression')
     axs[1].set_title('Cost function')
     n = 1
-    for i in range(0, 500):
+    cost = 0
+    preCost = 1
+    while (abs(cost - preCost) > 0.1):
+        preCost = cost
         cost = linearRegression(data)
         axs[1].scatter(n, cost)
         n += 1
@@ -66,7 +69,6 @@ def printRegression(data):
     theta0, theta1 = getTheta()
     axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
     plt.show()
-
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()
