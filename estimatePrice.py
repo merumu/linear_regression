@@ -1,5 +1,10 @@
+import sys
 import pickle
 import click
+
+def printError(str):
+    print(str, file=sys.stderr)
+    exit()
 
 def checkInt(i):
     try:
