@@ -10,7 +10,8 @@ def readData():
             data = {}
             for row in csv_reader:
                 if line == -1:
-                    print(f'Column are {", ".join(row)}')
+                    axs[0].set_xlabel(row[0])
+                    axs[0].set_ylabel(row[1])
                     line += 1
                 else:
                     if len(row) == 2 and checkInt(row[0]) and checkInt(row[1]):
@@ -22,7 +23,7 @@ def readData():
         pass
     if line > 0:
         return data
-    return None
+    return printError("Incorrect data file")
 
 def linearRegression(data):
     m = 0
@@ -33,7 +34,7 @@ def linearRegression(data):
     maxKm = max(data)
     minKm = min(data)
     if maxKm == minKm:
-        printError('only one x value in data, can\'t process')
+        printError('Only one x value in data, can\'t process a linear regression')
     cost = 0
     for km, price in data.items():
         kmNormalized = (km - minKm) / (maxKm - minKm)
@@ -43,7 +44,7 @@ def linearRegression(data):
             cost += (estimatePrice(km) - price)**2
             m += 1
         except:
-            printError('Linear Regression had an overflow. Try to modify the learningRate or the data')
+            printError('Linear Regression did overflow. Try to modify the learningRate or the data')
     cost = cost / (2*m)
     tmpT1 = tmpT1 / (maxKm - minKm)
     theta0 = theta0 - tmpT0 * learningRate / m
@@ -53,34 +54,33 @@ def linearRegression(data):
     return cost
 
 def printRegression(data):
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].set_title('Linear Regression')
-    axs[0].set_xlabel('Mileage')
-    axs[0].set_ylabel('Price')
-    axs[1].set_title('Cost function')
-    axs[1].set_xlabel('Number of iterations')
-    axs[1].set_ylabel('Cost')
     n = 1
-    cost = 0
-    preCost = 999999
-    while (abs(cost - preCost) > 0.1):
-        preCost = cost
-        cost = linearRegression(data)
-        axs[1].scatter(n, cost)
+    newCost = 0
+    lastCost = 1000000
+    cost = []
+    iteration = []
+    while (abs(newCost - lastCost) > 0.1):
+        lastCost = newCost
+        newCost = linearRegression(data)
         n += 1
+        cost.append(newCost)
+        iteration.append(n)
     mileage = list(data.keys())
     price = list(data.values())
     axs[0].scatter(mileage, price)
     theta0, theta1 = getTheta()
     axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=3)
+    axs[1].plot(iteration, cost, linewidth=2)
     plt.show()
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()
     if theta0 == 0 and theta1 == 0:
         setTheta(theta0, theta1)
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+    axs[0].set_title('Linear Regression')
+    axs[1].set_title('Cost function')
+    axs[1].set_xlabel('Number of iterations')
+    axs[1].set_ylabel('Cost')
     data = readData()
-    if data:
-        printRegression(data)
-    else:
-        printError("no data found")
+    printRegression(data)
