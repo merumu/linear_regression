@@ -72,7 +72,7 @@ def printRegression(data):
         iteration.append(n)
     axs[0].scatter(mileage, price)
     theta0, theta1 = getTheta()
-    test = axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=2)
+    axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=2)
     axs[1].plot(iteration, cost, linewidth=2)
     plt.show()
 
