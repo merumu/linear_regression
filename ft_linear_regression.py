@@ -62,15 +62,16 @@ def printRegression(data):
     mileage = list(data.keys())
     price = list(data.values())
     while (abs(newCost - lastCost) > 0.1):
+        if n % 10 == 0:
+            theta0, theta1 = getTheta()
+            axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=0.2)
         lastCost = newCost
         newCost = linearRegression(data)
         n += 1
         cost.append(newCost)
         iteration.append(n)
-        if n % 10 == 0:
-            theta0, theta1 = getTheta()
-            axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=0.2)
     axs[0].scatter(mileage, price)
+    theta0, theta1 = getTheta()
     test = axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=2)
     axs[1].plot(iteration, cost, linewidth=2)
     plt.show()
