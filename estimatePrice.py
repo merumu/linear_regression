@@ -2,9 +2,11 @@ import sys
 import pickle
 import click
 
+
 def printError(str):
     print(str, file=sys.stderr)
     exit()
+
 
 def checkInt(i):
     try:
@@ -12,6 +14,7 @@ def checkInt(i):
     except:
         return False
     return True
+
 
 def getTheta():
     try:
@@ -25,6 +28,7 @@ def getTheta():
         theta1 = 0
     return (theta0, theta1)
 
+
 def setTheta(theta0, theta1):
     with open('cache', 'wb') as fichier:
         my_pickler = pickle.Pickler(fichier)
@@ -32,9 +36,14 @@ def setTheta(theta0, theta1):
         my_pickler.dump(theta1)
         fichier.close()
 
+
 def estimatePrice(mileage):
     theta0, theta1 = getTheta()
-    return theta0 + theta1 * mileage
+    try:
+        return theta0 + theta1 * mileage
+    except:
+        printError("Mileage is not a valid integer")
+
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()

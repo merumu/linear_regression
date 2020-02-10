@@ -2,6 +2,7 @@ import csv
 import matplotlib.pyplot as plt
 from estimatePrice import *
 
+
 def readData():
     line = -1
     try:
@@ -25,6 +26,7 @@ def readData():
         return data
     return printError("Incorrect data file")
 
+
 def linearRegression(data):
     m = 0
     learningRate = 0.5
@@ -34,24 +36,25 @@ def linearRegression(data):
     maxKm = max(data)
     minKm = min(data)
     if maxKm == minKm:
-        printError('Only one x value in data, can\'t process a linear regression')
+        printError('Only one x value in data, can\'t process')
     cost = 0
-    for km, price in data.items():
-        kmNormalized = (km - minKm) / (maxKm - minKm)
-        try:
+    try:
+        for km, price in data.items():
+            kmNormalized = (km - minKm) / (maxKm - minKm)
             tmpT0 += (estimatePrice(km) - price)
             tmpT1 += (estimatePrice(km) - price) * kmNormalized
             cost += (estimatePrice(km) - price)**2
             m += 1
-        except:
-            printError('Linear Regression did overflow. Try to modify the learningRate or the data')
-    cost = cost / (2*m)
-    tmpT1 = tmpT1 / (maxKm - minKm)
-    theta0 = theta0 - tmpT0 * learningRate / m
-    theta1 = theta1 - tmpT1 * learningRate / m
+        cost = cost / (2*m)
+        tmpT1 = tmpT1 / (maxKm - minKm)
+        theta0 = theta0 - tmpT0 * learningRate / m
+        theta1 = theta1 - tmpT1 * learningRate / m
+    except:
+        printError('Linear Regression did overflow. Try to modify the learningRate/data')
     setTheta(theta0, theta1)
     print("theta0 : ", theta0, "\ttheta1 : ", theta1, "\tcost : ", cost, sep=" ")
     return cost
+
 
 def printRegression(data):
     n = 1
@@ -64,7 +67,7 @@ def printRegression(data):
     while (abs(newCost - lastCost) > 0.1):
         if n % 10 == 0:
             theta0, theta1 = getTheta()
-            axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=0.2)
+            axs[0].plot([0, max(mileage)], [theta0, theta0 + theta1 * max(mileage)], color='red', linewidth=0.2)
         lastCost = newCost
         newCost = linearRegression(data)
         n += 1
@@ -72,9 +75,10 @@ def printRegression(data):
         iteration.append(n)
     axs[0].scatter(mileage, price)
     theta0, theta1 = getTheta()
-    axs[0].plot([0,max(mileage)], [theta0 , theta0 + theta1 * max(mileage)], color='red', linewidth=2)
+    axs[0].plot([0, max(mileage)], [theta0, theta0 + theta1 * max(mileage)], color='red', linewidth=2)
     axs[1].plot(iteration, cost, linewidth=2)
     plt.show()
+
 
 if __name__ == "__main__":
     theta0, theta1 = getTheta()
